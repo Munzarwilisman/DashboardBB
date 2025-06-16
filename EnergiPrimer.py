@@ -11,8 +11,8 @@ import pytz
 st.set_page_config(layout="wide", page_title="Dashboard Pemakaian Harian PLTU Anggrek", page_icon="📈")
 st.markdown("<h1 style='text-align: center;'>📊 Dashboard Pemakaian Harian PLTU Anggrek</h1>", unsafe_allow_html=True)
 
-# ====== CSS UNTUK KARTU DAN RESPONSIF ======
-st.markdown("""
+# ====== CSS KUSTOM UNTUK KARTU METRIK ======
+css = """
 <style>
 .metric-card {
     background-color: #1e1e2f;
@@ -39,9 +39,10 @@ st.markdown("""
     .metric-card h3 { font-size: 16px; }
 }
 </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(css, unsafe_allow_html=True)
 
-# ====== LOAD GOOGLE SHEET DATA ======
+# ====== LOAD DATA GOOGLE SHEET ======
 @st.cache_data
 def load_google_sheet():
     url = "https://docs.google.com/spreadsheets/d/1RgWa7PSEVr-rmftl1KmYrpH_04yERQ-ANNJJJBhlVLc/export?format=xlsx"
