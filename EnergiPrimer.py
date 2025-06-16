@@ -9,72 +9,51 @@ import pytz
 
 # ====== CONFIG DASHBOARD ======
 st.set_page_config(layout="wide", page_title="Dashboard Pemakaian Harian PLTU Anggrek", page_icon="📈")
-st.markdown("""
-    <style>
-    html, body, [class*="css"]  {
-        zoom: 1 !important;
-        -webkit-text-size-adjust: 100%;
-    }
-    .metric-card {
-        background-color: #1e1e2f;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        color: #ffffff;
-        margin: 10px 0;
-    }
-    .metric-card h3 {
-        font-size: 18px;
-        margin-bottom: 10px;
-        color: #a3bffa;
-    }
-    .metric-card p {
-        font-size: 24px;
-        font-weight: bold;
-        margin: 0;
-        color: #ffffff;
-    }
-    @media (max-width: 768px) {
-        .metric-card p { font-size: 18px; }
-        .metric-card h3 { font-size: 16px; }
-    }
-    .scroll-slicer-container {
-        position: fixed;
-        right: 10px;
-        top: 30%;
-        height: 100px;
-        z-index: 9998;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 5px;
-    }
-    .scroll-slicer {
-        width: 40px;
-        height: 40px;
-        background-color: #2c2c3c;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        font-size: 18px;
-        box-shadow: 0px 2px 6px rgba(0,0,0,0.5);
-        cursor: pointer;
-        margin: 5px;
-        transition: background-color 0.3s;
-    }
-    .scroll-slicer:hover {
-        background-color: #444;
-    }
-    </style>
-
-    <div class="scroll-slicer-container">
-        <button class="scroll-slicer" onclick="window.scrollBy({top: -window.innerHeight * 0.5, behavior: 'smooth'})">⬆</button>
-        <button class="scroll-slicer" onclick="window.scrollBy({top: window.innerHeight * 0.5, behavior: 'smooth'})">⬇</button>
-    </div>
-""", unsafe_allow_html=True)
-
 st.markdown("<h1 style='text-align: center;'>📊 Dashboard Pemakaian Harian PLTU Anggrek</h1>", unsafe_allow_html=True)
+
+# ====== CSS AGAR TAMPILAN MOBILE SAMA SEPERTI DESKTOP DAN GAYA ======
+st.markdown("""
+<style>
+[data-testid="column"] {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+}
+.css-1r6slb0 {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+}
+.metric-card {
+    min-width: 200px;
+    flex-shrink: 0;
+    background-color: #1e1e2f;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #ffffff;
+    margin: 10px 0;
+}
+.metric-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #a3bffa;
+}
+.metric-card p {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: #ffffff;
+}
+.block-container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}
+.stPlotlyChart {
+    width: 100% !important;
+    height: auto !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ====== LOAD GOOGLE SHEET DATA ======
 @st.cache_data
@@ -153,7 +132,7 @@ try:
         fig_trend.update_traces(fill='tozeroy', line_shape='spline', opacity=0.4)
         fig_trend.update_layout(
             template='plotly_dark',
-            title=dict(text='Trend Pemakaian Harian per Unit', x=0.5),
+            title=dict(text='Trend Pemakaian Harian per Unit', x=0.5, xanchor='center'),
             legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5)
         )
         st.plotly_chart(fig_trend, use_container_width=True)
@@ -181,24 +160,24 @@ try:
             fig_flowrate = go.Figure()
             fig_flowrate.add_trace(go.Bar(x=monthly_avg['Bulan'], y=monthly_avg['DS (MT)'], name='Volume (MT)', marker_color='rgba(75,192,192,0.7)', text=monthly_avg['DS (MT)'].round(2), textposition='auto'))
             fig_flowrate.add_trace(go.Scatter(x=monthly_avg['Bulan'], y=monthly_avg['Flowrate (MT/day)'], yaxis='y2', name='Flowrate (MT/day)', mode='lines+markers+text', text=monthly_avg['Flowrate (MT/day)'].round(2), textposition='top center', line=dict(color='deepskyblue')))
-            fig_flowrate.update_layout(template='plotly_dark', yaxis=dict(title='Volume (MT)'), yaxis2=dict(title='Flow Rate (MT/day)', overlaying='y', side='right'), title=dict(text='Volume vs Flowrate Bulanan', x=0.5))
+            fig_flowrate.update_layout(template='plotly_dark', yaxis=dict(title='Volume (MT)'), yaxis2=dict(title='Flow Rate (MT/day)', overlaying='y', side='right'), title=dict(text='Volume vs Flowrate Bulanan', x=0.5, xanchor='center'))
             st.plotly_chart(fig_flowrate, use_container_width=True)
 
     with col_graph2:
         st.markdown("#### Rata-rata Flow Rate per Supplier")
         if not supplier_monthly_avg.empty:
-            fig_supplier = px.bar(supplier_monthly_avg, x='Bulan', y='Flowrate (MT/hours)', color='Suppliers', text='Flowrate (MT/hours)', barmode='group', title='Flowrate per Supplier per Bulan')
+            fig_supplier = px.bar(supplier_monthly_avg, x='Bulan', y='Flowrate (MT/hours)', color='Suppliers', text='Flowrate (MT/hours)', barmode='group')
             fig_supplier.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-            fig_supplier.update_layout(template='plotly_dark', title=dict(x=0.5))
+            fig_supplier.update_layout(template='plotly_dark', title=dict(text='Flowrate per Supplier per Bulan', x=0.5, xanchor='center'))
             st.plotly_chart(fig_supplier, use_container_width=True)
 
     with col_graph3:
         st.markdown("#### Komposisi Total B/L per Supplier")
         total_ds_supplier = df.groupby('Suppliers')['DS (MT)'].sum().reset_index().dropna()
         if not total_ds_supplier.empty:
-            fig_pie = px.pie(total_ds_supplier, names='Suppliers', values='DS (MT)', hole=0.3, title='Komposisi Total B/L per Supplier')
+            fig_pie = px.pie(total_ds_supplier, names='Suppliers', values='DS (MT)', hole=0.3)
             fig_pie.update_traces(textinfo='percent+label')
-            fig_pie.update_layout(template='plotly_dark', title=dict(x=0.5))
+            fig_pie.update_layout(template='plotly_dark', title=dict(text='Komposisi Total B/L per Supplier', x=0.5, xanchor='center'))
             st.plotly_chart(fig_pie, use_container_width=True)
 
     with col_graph4:
@@ -206,7 +185,7 @@ try:
         if not total_ds_supplier.empty:
             fig_bar = px.bar(total_ds_supplier, x='Suppliers', y='DS (MT)', text='DS (MT)', labels={'DS (MT)': 'Volume (MT)'})
             fig_bar.update_traces(texttemplate='%{text:.2f}', textposition='outside', marker_color='skyblue')
-            fig_bar.update_layout(template='plotly_dark', title=dict(text='Total Volume per Supplier', x=0.5), xaxis_tickangle=-30)
+            fig_bar.update_layout(template='plotly_dark', title=dict(text='Total Volume per Supplier', x=0.5, xanchor='center'), xaxis_tickangle=-30)
             st.plotly_chart(fig_bar, use_container_width=True)
 
 except Exception as e:
