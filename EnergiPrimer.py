@@ -7,11 +7,11 @@ from io import BytesIO
 import requests
 import pytz
 
-# ========== CONFIG DASHBOARD ==========
-st.set_page_config(layout="wide", page_title="DASHBOARD ENERGI PRIMER PLTU Anggrek", page_icon="📈")
-st.markdown("<h1 style='text-align: center;'>📊 DASHBOARD ENERGI PRIMER PLTU Anggrek</h1>", unsafe_allow_html=True)
+# ====== CONFIG DASHBOARD ======
+st.set_page_config(layout="wide", page_title="Dashboard Pemakaian Harian PLTU Anggrek", page_icon="📈")
+st.markdown("<h1 style='text-align: center;'>📊 Dashboard Pemakaian Harian PLTU Anggrek</h1>", unsafe_allow_html=True)
 
-# ========== CSS STYLING ==========
+# ====== CSS UNTUK KARTU DAN RESPONSIF ======
 st.markdown("""
 <style>
 .metric-card {
@@ -34,11 +34,14 @@ st.markdown("""
     margin: 0;
     color: #ffffff;
 }
-.css-1v0mbdj.e1f1d6gn3 { justify-content: flex-end; } /* For aligning selectbox to the right */
+@media (max-width: 768px) {
+    .metric-card p { font-size: 18px; }
+    .metric-card h3 { font-size: 16px; }
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ========== LOAD DATA ==========
+# ====== LOAD GOOGLE SHEET DATA ======
 @st.cache_data
 def load_google_sheet():
     url = "https://docs.google.com/spreadsheets/d/1RgWa7PSEVr-rmftl1KmYrpH_04yERQ-ANNJJJBhlVLc/export?format=xlsx"
@@ -60,13 +63,12 @@ try:
     tz = pytz.timezone("Asia/Jakarta")
     today = datetime.now(tz).date()
 
-    # ========== MODE TAMPILAN ==========
-    col_mode, col_periode = st.columns([6, 1])
-    with col_mode:
-        mode = st.radio("Mode Tampilan", ["📱 Mobile", "💻 Desktop"], horizontal=True)
-    with col_periode:
+    # ==== PILIHAN PERIODE DI KANAN ATAS ====
+    col_period, _ = st.columns([1, 5])
+    with col_period:
+        st.markdown("#### 📆 Periode")
         periode_opsi = ["Kemarin", "1 Minggu Terakhir", "1 Bulan Terakhir", "Bulan Ini", "Tahun Ini"]
-        periode_pilihan = st.selectbox(" ", options=periode_opsi, index=3)
+        periode_pilihan = st.selectbox(" ", options=periode_opsi, index=3, label_visibility="collapsed")
 
     def filter_by_periode(df, pilihan):
         if pilihan == "Kemarin":
@@ -83,12 +85,9 @@ try:
 
     df_filtered = filter_by_periode(df, periode_pilihan)
 
-    # ========== RINGKASAN ==========
+    # ====== KARTU RINGKASAN ======
     st.markdown("### 🔢 Ringkasan Pemakaian")
-    if mode == "💻 Desktop":
-        col1, col2, col3, col4, col5 = st.columns(5)
-    else:
-        col1 = col2 = col3 = col4 = col5 = st
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     if not df_filtered.empty:
         pemakaian1 = df_filtered['PEMAKAIAN UNIT 1'].sum()
@@ -112,7 +111,7 @@ try:
                 f"""<div class="metric-card"><h3>{judul}</h3><p>N/A</p></div>""", 
                 unsafe_allow_html=True)
 
-    # ========== GRAFIK TREND ==========
+    # ====== GRAFIK TREND HARIAN ======
     st.markdown("### 📈 Trend Pemakaian Harian")
     if not df_filtered.empty:
         fig_trend = px.line(
@@ -129,7 +128,7 @@ try:
     else:
         st.info("Data pemakaian harian tidak tersedia.")
 
-    # ========== ANALISIS BULANAN ==========
+    # ====== ANALISIS BULANAN TAMBAHAN ======
     df['Bulan'] = df['Tanggal'].dt.to_period('M').astype(str)
     monthly_avg = df.groupby('Bulan').agg({
         'Flowrate (MT/hours)': 'mean',
@@ -142,12 +141,8 @@ try:
     supplier_monthly_avg = df.groupby(['Bulan', 'Suppliers'])['Flowrate (MT/hours)'].mean().reset_index()
 
     st.markdown("### 📊 Analisis Bongkar Muat Rata-rata Per Bulan")
-
-    if mode == "💻 Desktop":
-        col_graph1, col_graph2 = st.columns(2)
-        col_graph3, col_graph4 = st.columns(2)
-    else:
-        col_graph1 = col_graph2 = col_graph3 = col_graph4 = st
+    col_graph1, col_graph2 = st.columns(2)
+    col_graph3, col_graph4 = st.columns(2)
 
     with col_graph1:
         st.markdown("#### Perbandingan Rata-rata Volume vs Flowrate")
