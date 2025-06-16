@@ -11,10 +11,21 @@ import pytz
 st.set_page_config(layout="wide", page_title="Dashboard Pemakaian Harian PLTU Anggrek", page_icon="📈")
 st.markdown("<h1 style='text-align: center;'>📊 Dashboard Pemakaian Harian PLTU Anggrek</h1>", unsafe_allow_html=True)
 
-# ====== CSS KUSTOM UNTUK KARTU METRIK ======
-css = """
+# ====== CSS AGAR TAMPILAN MOBILE SAMA SEPERTI DESKTOP ======
+st.markdown("""
 <style>
+/* Kolom tetap horizontal */
+[data-testid="column"] {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+}
+.css-1r6slb0 {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+}
 .metric-card {
+    min-width: 200px;
+    flex-shrink: 0;
     background-color: #1e1e2f;
     border-radius: 10px;
     padding: 15px;
@@ -34,15 +45,18 @@ css = """
     margin: 0;
     color: #ffffff;
 }
-@media (max-width: 768px) {
-    .metric-card p { font-size: 18px; }
-    .metric-card h3 { font-size: 16px; }
+.block-container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}
+.stPlotlyChart {
+    width: 100% !important;
+    height: auto !important;
 }
 </style>
-"""
-st.markdown(css, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-# ====== LOAD DATA GOOGLE SHEET ======
+# ====== LOAD GOOGLE SHEET DATA ======
 @st.cache_data
 def load_google_sheet():
     url = "https://docs.google.com/spreadsheets/d/1RgWa7PSEVr-rmftl1KmYrpH_04yERQ-ANNJJJBhlVLc/export?format=xlsx"
