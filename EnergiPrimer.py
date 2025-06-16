@@ -8,7 +8,7 @@ import requests
 import pytz
 
 # ========== CONFIG DASHBOARD ==========
-st.set_page_config(layout="wide", page_title="Dashboard Pemakaian Harian PLTU Anggrek", page_icon="📈")
+st.set_page_config(layout="wide", page_title="DASHBOARD ENERGI PRIMER PLTU Anggrek", page_icon="📈")
 st.markdown("<h1 style='text-align: center;'>📊 Dashboard Pemakaian Harian PLTU Anggrek</h1>", unsafe_allow_html=True)
 
 # ========== CSS STYLING ==========
