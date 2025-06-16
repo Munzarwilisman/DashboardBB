@@ -11,10 +11,9 @@ import pytz
 st.set_page_config(layout="wide", page_title="Dashboard Pemakaian Harian PLTU Anggrek", page_icon="📈")
 st.markdown("<h1 style='text-align: center;'>📊 Dashboard Pemakaian Harian PLTU Anggrek</h1>", unsafe_allow_html=True)
 
-# ====== CSS AGAR TAMPILAN MOBILE SAMA SEPERTI DESKTOP ======
+# ====== CSS AGAR TAMPILAN MOBILE SAMA SEPERTI DESKTOP DAN GAYA ======
 st.markdown("""
 <style>
-/* Kolom tetap horizontal */
 [data-testid="column"] {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -78,7 +77,6 @@ try:
     tz = pytz.timezone("Asia/Jakarta")
     today = datetime.now(tz).date()
 
-    # ==== PILIHAN PERIODE DI KANAN ATAS ====
     col_period, _ = st.columns([1, 5])
     with col_period:
         st.markdown("#### 📆 Periode")
@@ -100,7 +98,6 @@ try:
 
     df_filtered = filter_by_periode(df, periode_pilihan)
 
-    # ====== KARTU RINGKASAN ======
     st.markdown("### 🔢 Ringkasan Pemakaian")
     col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -126,7 +123,6 @@ try:
                 f"""<div class="metric-card"><h3>{judul}</h3><p>N/A</p></div>""", 
                 unsafe_allow_html=True)
 
-    # ====== GRAFIK TREND HARIAN ======
     st.markdown("### 📈 Trend Pemakaian Harian")
     if not df_filtered.empty:
         fig_trend = px.line(
@@ -136,14 +132,13 @@ try:
         fig_trend.update_traces(fill='tozeroy', line_shape='spline', opacity=0.4)
         fig_trend.update_layout(
             template='plotly_dark',
-            title=dict(text='Trend Pemakaian Harian per Unit', x=0.5),
+            title=dict(text='Trend Pemakaian Harian per Unit', x=0.5, xanchor='center'),
             legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5)
         )
         st.plotly_chart(fig_trend, use_container_width=True)
     else:
         st.info("Data pemakaian harian tidak tersedia.")
 
-    # ====== ANALISIS BULANAN TAMBAHAN ======
     df['Bulan'] = df['Tanggal'].dt.to_period('M').astype(str)
     monthly_avg = df.groupby('Bulan').agg({
         'Flowrate (MT/hours)': 'mean',
@@ -165,24 +160,24 @@ try:
             fig_flowrate = go.Figure()
             fig_flowrate.add_trace(go.Bar(x=monthly_avg['Bulan'], y=monthly_avg['DS (MT)'], name='Volume (MT)', marker_color='rgba(75,192,192,0.7)', text=monthly_avg['DS (MT)'].round(2), textposition='auto'))
             fig_flowrate.add_trace(go.Scatter(x=monthly_avg['Bulan'], y=monthly_avg['Flowrate (MT/day)'], yaxis='y2', name='Flowrate (MT/day)', mode='lines+markers+text', text=monthly_avg['Flowrate (MT/day)'].round(2), textposition='top center', line=dict(color='deepskyblue')))
-            fig_flowrate.update_layout(template='plotly_dark', yaxis=dict(title='Volume (MT)'), yaxis2=dict(title='Flow Rate (MT/day)', overlaying='y', side='right'), title=dict(text='Volume vs Flowrate Bulanan', x=0.5))
+            fig_flowrate.update_layout(template='plotly_dark', yaxis=dict(title='Volume (MT)'), yaxis2=dict(title='Flow Rate (MT/day)', overlaying='y', side='right'), title=dict(text='Volume vs Flowrate Bulanan', x=0.5, xanchor='center'))
             st.plotly_chart(fig_flowrate, use_container_width=True)
 
     with col_graph2:
         st.markdown("#### Rata-rata Flow Rate per Supplier")
         if not supplier_monthly_avg.empty:
-            fig_supplier = px.bar(supplier_monthly_avg, x='Bulan', y='Flowrate (MT/hours)', color='Suppliers', text='Flowrate (MT/hours)', barmode='group', title='Flowrate per Supplier per Bulan')
+            fig_supplier = px.bar(supplier_monthly_avg, x='Bulan', y='Flowrate (MT/hours)', color='Suppliers', text='Flowrate (MT/hours)', barmode='group')
             fig_supplier.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-            fig_supplier.update_layout(template='plotly_dark', title=dict(x=0.5))
+            fig_supplier.update_layout(template='plotly_dark', title=dict(text='Flowrate per Supplier per Bulan', x=0.5, xanchor='center'))
             st.plotly_chart(fig_supplier, use_container_width=True)
 
     with col_graph3:
         st.markdown("#### Komposisi Total B/L per Supplier")
         total_ds_supplier = df.groupby('Suppliers')['DS (MT)'].sum().reset_index().dropna()
         if not total_ds_supplier.empty:
-            fig_pie = px.pie(total_ds_supplier, names='Suppliers', values='DS (MT)', hole=0.3, title='Komposisi Total B/L per Supplier')
+            fig_pie = px.pie(total_ds_supplier, names='Suppliers', values='DS (MT)', hole=0.3)
             fig_pie.update_traces(textinfo='percent+label')
-            fig_pie.update_layout(template='plotly_dark', title=dict(x=0.5))
+            fig_pie.update_layout(template='plotly_dark', title=dict(text='Komposisi Total B/L per Supplier', x=0.5, xanchor='center'))
             st.plotly_chart(fig_pie, use_container_width=True)
 
     with col_graph4:
@@ -190,7 +185,7 @@ try:
         if not total_ds_supplier.empty:
             fig_bar = px.bar(total_ds_supplier, x='Suppliers', y='DS (MT)', text='DS (MT)', labels={'DS (MT)': 'Volume (MT)'})
             fig_bar.update_traces(texttemplate='%{text:.2f}', textposition='outside', marker_color='skyblue')
-            fig_bar.update_layout(template='plotly_dark', title=dict(text='Total Volume per Supplier', x=0.5), xaxis_tickangle=-30)
+            fig_bar.update_layout(template='plotly_dark', title=dict(text='Total Volume per Supplier', x=0.5, xanchor='center'), xaxis_tickangle=-30)
             st.plotly_chart(fig_bar, use_container_width=True)
 
 except Exception as e:
