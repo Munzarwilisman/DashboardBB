@@ -35,8 +35,8 @@ def analyze_with_ai(prompt_text):
         return f"Gagal memproses AI: {str(e)}"
 
 # ====== CONFIG DASHBOARD ======
-st.set_page_config(layout="wide", page_title="DASHBOARD ENERGI PRIMER PLTU Anggrek", page_icon="📈")
-st.markdown("<h1 style='text-align: center;'>📊 DASHBOARD ENERGI PRIMER PLTU Anggrek</h1>", unsafe_allow_html=True)
+st.set_page_config(layout="wide", page_title="DASHBOARD ENERGI PRIMER PLTU ANGGREK", page_icon="📈")
+st.markdown("<h1 style='text-align: center;'>📊 DASHBOARD ENERGI PRIMER PLTU ANGGREK</h1>", unsafe_allow_html=True)
 
 # ====== CSS STYLING ======
 st.markdown("""
