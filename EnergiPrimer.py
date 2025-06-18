@@ -113,7 +113,7 @@ try:
 
     def filter_by_periode(df, pilihan):
         if pilihan == "Kemarin":
-            return df[df['Tanggal'].dt.date == today - timedelta(days=1)]
+            return df[df['Tanggal'].dt.date == today - timedelta(days=2)]
         elif pilihan == "1 Minggu Terakhir":
             return df[df['Tanggal'].dt.date >= today - timedelta(days=7)]
         elif pilihan == "1 Bulan Terakhir":
